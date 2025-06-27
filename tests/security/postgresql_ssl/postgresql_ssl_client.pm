@@ -6,6 +6,23 @@
 # Summary: The client side of postgresql ssl connection test.
 # Maintainer: QE Security <none@suse.de>
 # Tags: poo#110233, tc#1769967, poo#112094
+#
+#
+#\
+# .. warning::
+#    Requires postgresql_ssl_server module
+#
+# Test steps:
+#    * install runtime dependencies (iputils)
+#    * determine client ip
+#    * install postgresql
+#    * restart postgres
+#    * setup mutex to wait for server
+#    * connect to postgresql server
+#
+# .. NOTE::
+#    This is the server-side of a multimachine test
+#/
 
 use base 'consoletest';
 use strict;

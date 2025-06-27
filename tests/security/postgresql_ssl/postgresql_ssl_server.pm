@@ -3,9 +3,24 @@
 # Copyright 2025 SUSE LLC
 # SPDX-License-Identifier: FSFAP
 #
-# Summary: The server side of postgresql ssl connection test.
+#\ Summary: The server side of postgresql ssl connection test.
 # Maintainer: QE Security <none@suse.de>
 # Tags: poo#110233, tc#1769967, poo#112094
+#
+# Test steps:
+#    * stop firewalld
+#    * install postgres
+#    * setup ssl key
+#    * setup password for postgres
+#    * setup configuration, inc. ssl certificate
+#    * restart postgres
+#    * check postgres status
+#    * setup mutex to wait for client
+#    * after test is done, stop postgres
+#
+# .. NOTE::
+#    This is the server-side of a multimachine test
+#/
 
 use base 'consoletest';
 use strict;
