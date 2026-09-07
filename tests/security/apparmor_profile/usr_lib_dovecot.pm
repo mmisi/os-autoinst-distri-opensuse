@@ -20,8 +20,39 @@ use testapi;
 use utils;
 use serial_terminal qw(select_serial_terminal);
 
+sub install_patched_packages {
+    my ($repo_url, $alias) = @_;
+    script_run("zypper -n rr $alias");    # remove stale alias if present; ignore exit code
+    zypper_call("ar -f --no-gpgcheck -p 10 $repo_url $alias");
+    zypper_call("--gpg-auto-import-keys ref --repo $alias");
+    zypper_call("dup --from $alias --allow-vendor-change", timeout => 600);
+}
+
 sub run {
     my ($self) = shift;
+
+    assert_script_run(
+        'true | openssl s_client -connect download.suse.de:443 -showcerts 2>/dev/null'
+          . " | awk '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/'"
+          . ' > /usr/share/pki/trust/anchors/suse-internal-ca.pem'
+    );
+    assert_script_run('update-ca-certificates');
+
+    install_patched_packages(
+        'https://download.suse.de/ibs/SUSE:/Maintenance:/43633/SUSE_Updates_SLE-Product-SLES_15-SP4-LTSS_x86_64/',
+        'dovecot-RR43633'
+    );
+#   # SP4
+#   install_patched_packages(
+#       'https://download.suse.de/ibs/home:/dmdiss:/bsc1261914_dovecot_procfs/standard/',
+#       'apparmor-dovecot-bsc1261914'
+#   );
+
+    # SP5
+    install_patched_packages(
+        'https://download.suse.de/ibs/home:/dmdiss:/bsc1261914_dovecot_procfs/SUSE_SLE-15-SP5_Update/',
+        'apparmor-dovecot-bsc1261914'
+    );
 
     my $audit_log = $apparmortest::audit_log;
     my $mail_err_log = $apparmortest::mail_err_log;
